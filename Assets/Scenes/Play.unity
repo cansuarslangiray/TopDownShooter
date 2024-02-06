@@ -26242,7 +26242,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8930685979966174, guid: dbbf9c22ec60a364bb380697681834b5, type: 3}
       propertyPath: speed
-      value: 7
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8930685979966174, guid: dbbf9c22ec60a364bb380697681834b5, type: 3}
       propertyPath: joystick
