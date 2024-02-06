@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     public int damage = 1;
     public AudioSource gunAudioSource;
     public AudioSource healAudioSource;
+    public Joystick joystick;
 
 
     private void Start()
@@ -43,16 +44,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void Movement()
     {
-      
-        _moveH = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        _moveV = Input.GetAxis("Vertical") * speed * Time.deltaTime;
-        if (Input.GetKey(KeyCode.A) && !_amIShooting)
+        var horizontalMove = joystick.Horizontal;
+        var verticalMove = joystick.Vertical;
+        _moveH = horizontalMove * speed * Time.deltaTime;
+        _moveV = verticalMove * speed * Time.deltaTime;
+        if (horizontalMove < 0 && Input.GetKey(KeyCode.A) && !_amIShooting)
         {
             _playerSpriteRenderer.flipX = true;
             _playerAnim.SetBool("isRunning", true);
             gunPrep.GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if (Input.GetKey(KeyCode.D) && !_amIShooting)
+        else if (horizontalMove > 0 && Input.GetKey(KeyCode.D) && !_amIShooting)
         {
             _playerSpriteRenderer.flipX = false;
             _playerAnim.SetBool("isRunning", true);
