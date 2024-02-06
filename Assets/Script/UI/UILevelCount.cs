@@ -15,7 +15,7 @@ public class UILevelCount : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        LevelCount.GetComponent<Text>().text ="Lv."+GenerateLevel.level;
+       // LevelCount.GetComponent<Text>().text ="Lv."+;
 
     }
 }

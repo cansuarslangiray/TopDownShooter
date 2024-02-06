@@ -8,6 +8,7 @@ public class TimeBasedProgressBar : MonoBehaviour
     public GameObject levelUpTexture;
     public GameObject deadImg;
     public float timeBound = 30;
+    public GameObject PlayAgain;
 
     public float passedTime = 0f;
 
@@ -19,6 +20,9 @@ public class TimeBasedProgressBar : MonoBehaviour
 
     private bool _creatingEnemyStart;
     private bool _gameOver = false;
+    public GameObject CoinParent;
+    public AudioSource loseAudioSource;
+    public AudioSource backgroundAudioSource;
 
 
 
@@ -29,7 +33,6 @@ public class TimeBasedProgressBar : MonoBehaviour
         {
             CheckPlayerState();
         }
-        
     }
 
 
@@ -46,36 +49,52 @@ public class TimeBasedProgressBar : MonoBehaviour
 
             timeSlider.value = 1 - (passedTime / timeBound);
             timeText.text = "00:" + Mathf.Ceil(timeBound - passedTime).ToString();
-          
-                if (timeBound - passedTime == 0 && Enemy.transform.childCount != 0 || PlayerMovement.health<=0)
-                    
-                {
-                    _gameOver = true;
-                   // ShowGameOverUI();
-                    Debug.Log("Failed");
-                    deadImg.gameObject.SetActive(true);
-                }
-            
+
+            if (timeBound - passedTime == 0 && Enemy.transform.childCount != 0 || PlayerMovement.health <= 0)
+
+            {
+                backgroundAudioSource.Stop();
+                _gameOver = true;
+                // ShowGameOverUI();
+                Debug.Log("Failed");
+                deadImg.gameObject.SetActive(true);
+                PlayAgain.gameObject.SetActive(true);
+                loseAudioSource.Play();
+            }
+
 
             else if (Enemy.transform.childCount == 0 && timeBound - passedTime >= 0)
             {
                 if (_creatingEnemyStart)
                 {
-                    
+                    PlayAgain.gameObject.SetActive(false);
                     levelUpTexture.SetActive(true);
+                    for (int i = 0; i < CoinParent.transform.childCount; i++)
+                    {
+                        PlayerMovement.coin += CoinParent.transform.GetChild(i).gameObject.GetComponent<Coin>().value;
+                        Destroy(CoinParent.transform.GetChild(i).gameObject);
+                    }
+
                     _creatingEnemyStart = false;
                 }
 
                 passedTime = 0;
                 GenerateLevel.isCompleted = false;
-              //  ShowSurvivedUI();
+
+                //  ShowSurvivedUI();
             }
         }
         else
         {
+            backgroundAudioSource.Stop();
             deadImg.gameObject.SetActive(true);
-            Debug.Log("Zaman Doldu!");
+            PlayAgain.gameObject.SetActive(true);
+            loseAudioSource.Play();
         }
     }
-    
+
+    public  void IncreaseTime()
+    {
+        passedTime -= 1;
+    }
 }

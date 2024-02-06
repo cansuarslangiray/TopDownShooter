@@ -365,7 +365,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d949d809ff4ff1d4b882af898f54d0d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvas: {fileID: 0}
   position: {x: 0, y: 0, z: 0}
   camera: {fileID: 0}
   slide: {fileID: 0}

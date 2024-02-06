@@ -2,11 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+
 public class PlayerMovement : MonoBehaviour
 {
+    public static int coin;
     private float _moveH;
     private float _moveV;
-    public float speed;
+    public float speed = 5;
     public GameObject bulletPrefabs;
     private bool _amIShooting;
     private SpriteRenderer _playerSpriteRenderer;
@@ -16,8 +18,11 @@ public class PlayerMovement : MonoBehaviour
     private Animator _playerAnim;
     public GameObject gunPrep;
     public static int health = 10;
+    public int maxHealth = 10;
     public GameObject healthBar;
     public int damage = 1;
+    public AudioSource gunAudioSource;
+    public AudioSource healAudioSource;
 
 
     private void Start()
@@ -38,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Movement()
     {
+      
         _moveH = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
         _moveV = Input.GetAxis("Vertical") * speed * Time.deltaTime;
         if (Input.GetKey(KeyCode.A) && !_amIShooting)
@@ -80,7 +86,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
             clickedPosition.z = 0f; // Ensure the z-coordinate is appropriate for 2D gameplay
-
+            gunAudioSource.Play();
             var bullet = Instantiate(bulletPrefabs, gunPrep.transform.position, Quaternion.identity);
             Vector2 direction = (clickedPosition - gunPrep.transform.position).normalized;
 
@@ -100,12 +106,43 @@ public class PlayerMovement : MonoBehaviour
             if (healthBar != null)
             {
                 var slider = healthBar.GetComponent<HealthBar>().slide;
-                damage = other.transform.GetComponent<Enemy>().GetDamage();
-                healthBar.GetComponent<HealthBar>().SetDamage(damage);
-                health -= damage;
+                var enemyDamage = other.transform.GetComponent<Enemy>().GetDamage();
+                healthBar.GetComponent<HealthBar>().SetDamage(enemyDamage);
+                health -= enemyDamage;
             }
         }
+
+        /*if (other.transform.CompareTag("Coin"))
+        {
+            coin += other.gameObject.GetComponent<Coin>().value;
+            Destroy(other.gameObject);
+        }*/
     }
+
+    public void Heal(int amount)
+    {
+        health = Mathf.Min(health + amount, maxHealth);
+        var slider = healthBar.GetComponent<HealthBar>().slide;
+        healthBar.GetComponent<HealthBar>().SetHealth(amount);
+        healAudioSource.Play();
+    }
+
+    public void IncreaseDamage(int amount)
+    {
+        damage += amount;
+    }
+
+    public void IncreaseSpeed(float amount)
+    {
+        speed += amount;
+    }
+
+    /* public void TakeDamage(int amount)
+     {
+         health = Mathf.Max(health - amount, 0f);
+         
+     }*/
+
 
     void CheckHealth()
     {

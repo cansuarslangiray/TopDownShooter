@@ -28,7 +28,6 @@ public class Bullet : MonoBehaviour
     {
         if (other.transform.CompareTag("Enemy"))
         {
-            Debug.Log("hello");
             other.transform.GetComponent<Enemy>().SetHealth(damage);
             Destroy(gameObject);
 
