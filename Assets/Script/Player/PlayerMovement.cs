@@ -77,45 +77,50 @@ public class PlayerMovement : MonoBehaviour
 
     private void Shoot()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.touchCount > 0)
         {
-            // Mouse pozisyonunu al
-            Vector2 mousePosition = Input.mousePosition;
+            Touch touch = Input.GetTouch(0);
 
-            // Eğer dokunma Canvas içindeyse devam et
-            if (IsPointerOverUIObject(mousePosition))
+            if (touch.phase == TouchPhase.Began)
             {
-                Debug.Log("UI Elemanına Tıklandı");
-                // Burada yapmak istediğiniz işlemi gerçekleştirin
-            }
-            else
-            {
-                Debug.Log("UI Elemanına Tıklanmadı");
-                // Canvas dışında bir yere tıklandıysa burada yapmak istediğiniz işlemi gerçekleştirin
-                var clickedPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                if (transform.position.x < clickedPosition.x)
+                // Dokunma pozisyonunu al
+                Vector2 touchPosition = touch.position;
+
+                // Eğer dokunma Canvas içindeyse devam et
+                if (IsPointerOverUIObject(touchPosition))
                 {
-                    _playerSpriteRenderer.flipX = false;
+                    Debug.Log("UI Elemanına Tıklandı");
+                    // Burada yapmak istediğiniz işlemi gerçekleştirin
                 }
                 else
                 {
-                    _playerSpriteRenderer.flipX = true;
+                    Debug.Log("UI Elemanına Tıklanmadı");
+                    // Canvas dışında bir yere dokunulduysa burada yapmak istediğiniz işlemi gerçekleştirin
+                    var clickedPosition = Camera.main.ScreenToWorldPoint(touch.position);
+                    if (transform.position.x < clickedPosition.x)
+                    {
+                        _playerSpriteRenderer.flipX = false;
+                    }
+                    else
+                    {
+                        _playerSpriteRenderer.flipX = true;
+                    }
+
+                    clickedPosition.z = 0f; // 2D oyun için z koordinatını ayarlayın
+                    gunAudioSource.Play();
+                    var bullet = Instantiate(bulletPrefabs, gunPrep.transform.position, Quaternion.identity);
+                    Vector2 direction = (clickedPosition - gunPrep.transform.position).normalized;
+
+                    bullet.GetComponent<Bullet>().SetDirection(direction);
+
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    gunPrep.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                    _amIShooting = true;
                 }
-
-                clickedPosition.z = 0f; // Ensure the z-coordinate is appropriate for 2D gameplay
-                gunAudioSource.Play();
-                var bullet = Instantiate(bulletPrefabs, gunPrep.transform.position, Quaternion.identity);
-                Vector2 direction = (clickedPosition - gunPrep.transform.position).normalized;
-
-                bullet.GetComponent<Bullet>().SetDirection(direction);
-
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                gunPrep.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                //  bullet.transform.rotation=Quaternion.AngleAxis(angle, Vector3.forward);
-                _amIShooting = true;}
-            
+            }
         }
     }
+
     bool IsPointerOverUIObject(Vector2 touchPosition)
     {
         // PointerEventData oluştur
