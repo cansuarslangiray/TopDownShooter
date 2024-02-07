@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 
@@ -77,28 +79,56 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            var clickedPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (transform.position.x < clickedPosition.x)
+            // Mouse pozisyonunu al
+            Vector2 mousePosition = Input.mousePosition;
+
+            // Eğer dokunma Canvas içindeyse devam et
+            if (IsPointerOverUIObject(mousePosition))
             {
-                _playerSpriteRenderer.flipX = false;
+                Debug.Log("UI Elemanına Tıklandı");
+                // Burada yapmak istediğiniz işlemi gerçekleştirin
             }
             else
             {
-                _playerSpriteRenderer.flipX = true;
-            }
+                Debug.Log("UI Elemanına Tıklanmadı");
+                // Canvas dışında bir yere tıklandıysa burada yapmak istediğiniz işlemi gerçekleştirin
+                var clickedPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                if (transform.position.x < clickedPosition.x)
+                {
+                    _playerSpriteRenderer.flipX = false;
+                }
+                else
+                {
+                    _playerSpriteRenderer.flipX = true;
+                }
 
-            clickedPosition.z = 0f; // Ensure the z-coordinate is appropriate for 2D gameplay
-            gunAudioSource.Play();
-            var bullet = Instantiate(bulletPrefabs, gunPrep.transform.position, Quaternion.identity);
-            Vector2 direction = (clickedPosition - gunPrep.transform.position).normalized;
+                clickedPosition.z = 0f; // Ensure the z-coordinate is appropriate for 2D gameplay
+                gunAudioSource.Play();
+                var bullet = Instantiate(bulletPrefabs, gunPrep.transform.position, Quaternion.identity);
+                Vector2 direction = (clickedPosition - gunPrep.transform.position).normalized;
 
-            bullet.GetComponent<Bullet>().SetDirection(direction);
+                bullet.GetComponent<Bullet>().SetDirection(direction);
 
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            gunPrep.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            //  bullet.transform.rotation=Quaternion.AngleAxis(angle, Vector3.forward);
-            _amIShooting = true;
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                gunPrep.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                //  bullet.transform.rotation=Quaternion.AngleAxis(angle, Vector3.forward);
+                _amIShooting = true;}
+            
         }
+    }
+    bool IsPointerOverUIObject(Vector2 touchPosition)
+    {
+        // PointerEventData oluştur
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        // Dokunulan pozisyonu EventSystem'e bildir
+        eventDataCurrentPosition.position = new Vector2(touchPosition.x, touchPosition.y);
+        
+        // PointerEventData'ya göre dokunma kontrolü yap
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        
+        // Eğer dokunma Canvas üzerinde bir UI elemanına denk gelmişse true döndür
+        return results.Count > 0;
     }
 
     private void OnCollisionEnter2D(Collision2D other)
