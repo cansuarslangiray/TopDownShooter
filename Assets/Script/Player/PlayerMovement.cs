@@ -50,13 +50,13 @@ public class PlayerMovement : MonoBehaviour
         var verticalMove = joystick.Vertical;
         _moveH = horizontalMove * speed * Time.deltaTime;
         _moveV = verticalMove * speed * Time.deltaTime;
-        if (horizontalMove < 0 && Input.GetKey(KeyCode.A) && !_amIShooting)
+        if (horizontalMove < 0 && !_amIShooting)
         {
             _playerSpriteRenderer.flipX = true;
             _playerAnim.SetBool("isRunning", true);
             gunPrep.GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if (horizontalMove > 0 && Input.GetKey(KeyCode.D) && !_amIShooting)
+        else if (horizontalMove > 0 && !_amIShooting)
         {
             _playerSpriteRenderer.flipX = false;
             _playerAnim.SetBool("isRunning", true);
@@ -66,7 +66,23 @@ public class PlayerMovement : MonoBehaviour
         {
             _playerAnim.SetBool("isRunning", false);
         }
-
+        if (_moveH > 0)
+        {
+            _moveH = Mathf.Min(_moveH, 0.028f);
+        }
+        if (_moveV > 0 )
+        {
+            _moveV = Mathf.Min(_moveV, 0.028f);
+        }
+        if (_moveH < 0)
+        {
+            _moveH = Mathf.Max(_moveH, -0.028f);
+        }
+        if (_moveV < 0)
+        {
+            _moveV = Mathf.Max(_moveV, -0.028f);
+        }
+        Debug.Log(_moveH);
         float newXPos = transform.position.x + _moveH;
         newXPos = Mathf.Clamp(newXPos, -boundary, boundary);
         float newYPos = transform.position.y + _moveV;
@@ -77,9 +93,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Shoot()
     {
-        if (Input.touchCount > 0)
+        for (int i = 0; i < Input.touchCount; i++)
         {
-            Touch touch = Input.GetTouch(0);
+            Touch touch = Input.GetTouch(i);
 
             if (touch.phase == TouchPhase.Began)
             {

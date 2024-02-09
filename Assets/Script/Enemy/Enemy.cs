@@ -74,6 +74,8 @@ public class Enemy : MonoBehaviour
 
     public int GetDamage()
     {
+        transform.GetComponent<AudioSource>().Play();
+
         return damage;
     }
 
